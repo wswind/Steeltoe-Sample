@@ -177,16 +177,10 @@ dotnet add package Steeltoe.Discovery.ClientCore
 
 上述过程的UML序列图如下，服务注册客户端首先进行服务注册，服务发现通过读取Consul中的服务地址，来进行访问。
 
-![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307182632243-1438044749.png)
-
-## Api网关
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307235348082-1349478332.png)
 
 
 
+## 本文源码地址
 
-
-
-
-## 其他
-
-本文源码地址: <https://github.com/wswind/Steeltoe-Sample>
+<https://github.com/wswind/Steeltoe-Sample>
