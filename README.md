@@ -33,17 +33,160 @@ steeltoe文档：<https://steeltoe.io/docs/>
 ## Consul服务发现
 
 参考： <https://steeltoe.io/service-discovery/get-started/consul>
+
+我没有使用docker for windows，而是在virtualbox 中创建了centos 7虚拟机运行docker，所以需要对官方教程的网络配置有调整。如果你的环境为docker for windows，则可以直接使用localhost
+
+我的虚拟机网络环境为virtualbox的host only network + nat双网卡配置。
+网关ip为192.168.56.1对应开发物理机ip，虚拟机ip为192.168.56.104对应consul ip。
+virtualbox的网络环境配置，可参考我的另一篇博文<https://www.cnblogs.com/wswind/p/10832740.html>
+
+在centos中通过命令运行consul：
 ```
 docker pull consul
-docker run -d --publish 8500:8500 consul
+docker run -d --publish 8500:8500 consul #-d意味着后台运行
 ```
 
-通过<https://start.steeltoe.io/>创建模板
+通过<https://start.steeltoe.io/>创建模板，选择NetCore3.1，组件选择Discovery。
+
+![](https://steeltoe.io/images/initializr/service-discovery.png) 
+
+此时我们可以看到，这个模板生成器，其实创建的就是一个Asp.NET Core WebAPI的空项目，唯一的不同，就是在项目文件中添加了包依赖：Steeltoe.Discovery.ClientCore。并在ConfigureServices时，调用了
+
+```csharp
+services.AddDiscoveryClient(Configuration);
+```
+
+
+
+通过在appsettings.json中添加配置，写明本机地址以及consul地址，运行项目，即可完成服务注册
+
+```json
+  "spring": {
+    "application": {
+      "name": "Consul-Register-Example"
+    }
+  },
+  "consul": {
+    "host": "192.168.56.104",
+    "port": 8500,
+    "discovery": {
+      "enabled": true,
+      "register": true,
+      "port": "8080",
+      "ipAddress": "192.168.56.1",
+      "preferIpAddress": true
+    }
+  }
+```
+
+修改**Properties\launchSettings.json**
+
+```
+"iisSettings": {
+		"windowsAuthentication": false, 
+		"anonymousAuthentication": true, 
+		"iisExpress": {
+			"applicationUrl": "http://localhost:8080",
+			"sslPort": 0
+		}
+	}
+```
+
+
+
+为了便于通过192.168.56.1访问服务，我添加了UseUrls：
+
+```csharp
+ var builder = WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://0.0.0.0:8080")
+```
+
+如果不修改，对于健康检查貌似没什么影响，只是你注册上去的ip，就是无法访问的了。
+
+关于asp.net core如何修改绑定ip，可参考：
+
+<https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.1#endpoint-configuration>
+
+<https://www.cnblogs.com/Hai--D/p/5842842.html>
+
+运行项目后，打开consul地址，我们可以看到服务注册已经完成了。
+
+
+
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307175836506-2126353697.png)
+
+我们可以看到服务注册过程非常简单，steeltoe的服务注册工具的使用，仅需添加几行json配置即可完成。大大减少了我们的代码开发量。
+
+上面是服务注册，接下面我们来讲解服务发现。由于已经了解steeltoe的模板生成器只是在空模板上加了nuget包的引用，我们也无需再通过它生成项目了。
+
+通过.net core cli创建空项目，并添加nuget包即可，命令行如下：
+
+```
+dotnet new webapi -n ConsulDiscovery
+cd ConsulDiscovery
+dotnet add package Steeltoe.Discovery.ClientCore
+```
+
+在ConfigureSerivces中，设置DI services.AddDiscoveryClient(Configuration);
+
+然后修改appsettings.json
+
+```json
+{
+...
+
+	"spring": {
+		"application": {
+			"name": "Consul-Discover-Example"
+		}
+	},
+	"consul": {
+		"host": "192.168.56.104",
+		"port": 8500,
+		"discovery": {
+			"enabled": true,
+			"register": false
+		}
+	}
+
+...
+}
+```
+
+修改WeatherForecastController，通过依赖注入IDiscoveryClient，创建DiscoveryHttpClientHandler，然后通过consule注册的服务地址来访问之前创建的服务。
+
+```
+        DiscoveryHttpClientHandler _handler;
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IDiscoveryClient client)
+        {
+            _logger = logger;
+            _handler = new DiscoveryHttpClientHandler(client);
+        }
+
+        [HttpGet]
+        public async Task<string> Get()
+        {
+            var client = new HttpClient(_handler, false);
+            return await client.GetStringAsync("http://Consul-Register-Example/api/values");
+        }
+```
+
+启动服务后，可以看到返回值：
+
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307181740506-836395060.png)
+
+上述过程的UML序列图如下，服务注册客户端首先进行服务注册，服务发现通过读取Consul中的服务地址，来进行访问。
+
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307182632243-1438044749.png)
 
 ## Api网关
 
 
 
 
+
+
+
+## 其他
 
 本文源码地址: <https://github.com/wswind/Steeltoe-Sample>

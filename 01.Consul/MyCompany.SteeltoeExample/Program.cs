@@ -23,6 +23,7 @@ namespace MyCompany.SteeltoeExample
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             var builder = WebHost.CreateDefaultBuilder(args)
+                .UseUrls("http://0.0.0.0:8080")
                 .UseDefaultServiceProvider(configure => configure.ValidateScopes = false)
                 .UseStartup<Startup>();
             return builder;
