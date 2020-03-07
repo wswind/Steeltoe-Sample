@@ -14,6 +14,11 @@
 
 Spring Cloud作为组装式框架的典范，被中小企业广泛使用。Steeltoe是帮助.NET开发的服务接入Spring Cloud技术栈的官方支持工具。即微服务的系统框架，还是由Spring Cloud来实现，而业务服务，可以通过.NET Core来实现。后面我们将基于Steeltoe来尝试实现微服务系统框架。
 
+steeltoe项目地址：<https://github.com/SteeltoeOSS/steeltoe>
+steeltoe样例地址：<https://github.com/SteeltoeOSS/Samples>
+本文代码地址: <git@github.com:wswind/Steeltoe-Sample.git>
+
+
 ## Consul服务发现
 
 ```
