@@ -16,7 +16,7 @@ Spring Cloud作为组装式框架的典范，被中小企业广泛使用。Steel
 
 steeltoe项目地址：<https://github.com/SteeltoeOSS/steeltoe>
 steeltoe样例地址：<https://github.com/SteeltoeOSS/Samples>
-本文代码地址: <git@github.com:wswind/Steeltoe-Sample.git>
+本文源码地址: <https://github.com/wswind/Steeltoe-Sample>
 
 
 ## Consul服务发现
