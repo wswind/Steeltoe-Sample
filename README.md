@@ -48,7 +48,8 @@ docker run -d -p 8500:8500 consul #-d意味着后台运行
 
 通过<https://start.steeltoe.io/>创建模板，选择NetCore3.1，组件选择Discovery。
 
-![image-20200315202033009](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315202033009.png) 
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316001459022-208745295.png)
+
 
 此时我们可以看到，这个模板生成器，其实创建的就是一个Asp.NET Core WebAPI的空项目，唯一的不同，就是在项目文件中添加了包依赖：Steeltoe.Discovery.ClientCore。并在ConfigureServices时，调用了
 
@@ -181,7 +182,8 @@ dotnet add package Steeltoe.Discovery.ClientCore
 
 ## Service Connectors with Microsoft SQL
 
-![image-20200315202113128](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315202113128.png)
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316001526907-2062050483.png)
+
 
 首先通过生成器<https://start.steeltoe.io/>创建项目，选netcore 3.1 + SQL Server
 
@@ -225,7 +227,7 @@ Steeltoe.CloudFoundry.ConnectorCore
 
 sql server需要启用tcp/ip以允许外部访问，开启后需要重启服务
 
-![image-20200315203742020](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315203742020.png)
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316001547132-886913233.png)
 
 
 
@@ -266,7 +268,8 @@ sql server需要启用tcp/ip以允许外部访问，开启后需要重启服务
 
 运行效果如下：
 
-![image-20200315212157020](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315212157020.png)
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316001603416-1409503210.png)
+
 
 通过Dapper来配合使用 Steeltoe.CloudFoundry.ConnectorCore 应该会很方便。
 
@@ -339,9 +342,7 @@ services.AddDistributedRedisCache(Configuration);
 
 运行结果如下：
 
-![image-20200315221318215](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315221318215.png)
-
-
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316001622499-750930758.png)
 
 
 
