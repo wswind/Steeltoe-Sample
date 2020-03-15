@@ -193,7 +193,12 @@ services.AddSqlServerConnection(Configuration);
 
 不过.NET Core 3.1模板目前有问题缺少了一些包引用，导致无法编译通过，需要手动安装
 
-System.Data.SqlClient，以及  Steeltoe.CloudFoundry.ConnectorCore 。
+```
+System.Data.SqlClient
+Steeltoe.CloudFoundry.ConnectorCore
+```
+
+
 
 另外，生成的模板项目中的nuget包Microsoft.EntityFrameworkCore.SqlServer不是必须的，如果不使用EfCore其实无需引入这个包。
 
