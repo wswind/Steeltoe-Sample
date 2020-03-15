@@ -265,9 +265,76 @@ sql server需要启用tcp/ip以允许外部访问，开启后需要重启服务
 
 通过Dapper来配合使用 Steeltoe.CloudFoundry.ConnectorCore 应该会很方便。
 
-不过也有一个问题，依赖注入是直接注入了SqlConnection，不清楚需要连接多个数据库，如果多数据库不知道这个包能否拓展。
+不过也有一个问题，依赖注入是直接注入了SqlConnection，不清楚如果同时连接多数据库能否拓展。不过对于微服务开发而言，这种情况很少见。
 
 
+
+## Service Connectors with Redis Cache
+
+首先运行redis
+
+```
+docker run -d -p 6379:6379 redis
+```
+
+通过 [Steeltoe Initializr](https://start.steeltoe.io/)创建项目选择.NET Core3.1 + Redis
+
+项目中添加了包：
+
+```
+Microsoft.Extensions.Caching.StackExchangeRedis
+Steeltoe.CloudFoundry.ConnectorCore
+```
+
+在依赖注入时，添加了：
+
+```csharp
+services.AddDistributedRedisCache(Configuration);
+```
+
+添加配置文件：
+
+```json
+{
+...
+
+ "redis": {
+	"client": {
+		
+		"host": "192.168.56.104",
+		"port": "6379",
+	}
+ }
+...
+}
+```
+
+默认的控制器代码如下：
+
+```csharp
+    public class ValuesController : ControllerBase
+    {
+        private readonly IDistributedCache _cache;
+        public ValuesController(IDistributedCache cache)
+        {
+            _cache = cache;
+        }
+
+        // GET api/values
+        [HttpGet]
+        public async Task<IEnumerable<string>> Get()
+        {
+            await _cache.SetStringAsync("MyValue1", "123");
+            await _cache.SetStringAsync("MyValue2", "456");
+            string myval1 = await _cache.GetStringAsync("MyValue1");
+            string myval2 = await _cache.GetStringAsync("MyValue2");
+            return new string[]{ myval1, myval2};
+        }
+```
+
+运行结果如下：
+
+![image-20200315221318215](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315221318215.png)
 
 
 
