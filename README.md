@@ -43,12 +43,12 @@ virtualbox的网络环境配置，可参考我的另一篇博文<https://www.cnb
 在centos中通过命令运行consul：
 ```
 docker pull consul
-docker run -d --publish 8500:8500 consul #-d意味着后台运行
+docker run -d -p 8500:8500 consul #-d意味着后台运行
 ```
 
 通过<https://start.steeltoe.io/>创建模板，选择NetCore3.1，组件选择Discovery。
 
-![](https://steeltoe.io/images/initializr/service-discovery.png) 
+![image-20200315202033009](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315202033009.png) 
 
 此时我们可以看到，这个模板生成器，其实创建的就是一个Asp.NET Core WebAPI的空项目，唯一的不同，就是在项目文件中添加了包依赖：Steeltoe.Discovery.ClientCore。并在ConfigureServices时，调用了
 
@@ -81,7 +81,7 @@ services.AddDiscoveryClient(Configuration);
 
 修改**Properties\launchSettings.json**
 
-```
+```json
 "iisSettings": {
 		"windowsAuthentication": false, 
 		"anonymousAuthentication": true, 
@@ -178,6 +178,100 @@ dotnet add package Steeltoe.Discovery.ClientCore
 上述过程的UML序列图如下，服务注册客户端首先进行服务注册，服务发现通过读取Consul中的服务地址，来进行访问。
 
 ![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200307235348082-1349478332.png)
+
+## Service Connectors with Microsoft SQL
+
+![image-20200315202113128](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315202113128.png)
+
+首先通过生成器<https://start.steeltoe.io/>创建项目，选netcore 3.1 + SQL Server
+
+创建项目默认安装了Nuget包 Microsoft.EntityFrameworkCore.SqlServer并添加了依赖注入
+
+```csharp
+services.AddSqlServerConnection(Configuration);
+```
+
+不过.NET Core 3.1模板目前有问题缺少了一些包引用，导致无法编译通过，需要手动安装
+
+System.Data.SqlClient，以及  Steeltoe.CloudFoundry.ConnectorCore 。
+
+另外，生成的模板项目中的nuget包Microsoft.EntityFrameworkCore.SqlServer不是必须的，如果不使用EfCore其实无需引入这个包。
+
+在appsettings.json中添加数据库的连接配置
+
+```json
+{
+...
+
+
+ "sqlserver": {
+	"credentials": {
+		"server": "127.0.0.1",
+		"port": "1433",
+		"username": "sa",
+		"password": "sa"
+		
+	}
+ }
+
+...
+}
+```
+
+sql server需要启用tcp/ip以允许外部访问，开启后需要重启服务
+
+![image-20200315203742020](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315203742020.png)
+
+
+
+模板中，向我们展示了这个包的用法
+
+```csharp
+...
+    public class ValuesController : ControllerBase
+    {
+        private readonly SqlConnection _dbConnection;
+        public ValuesController([FromServices] SqlConnection dbConnection)
+        {
+            _dbConnection = dbConnection;
+        }
+
+        // GET api/values
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            List<string> tables = new List<string>();
+        
+            _dbConnection.Open();
+            DataTable dt = _dbConnection.GetSchema("Tables");
+            _dbConnection.Close();
+            foreach (DataRow row in dt.Rows)
+            {
+                string tablename = (string)row[2];
+                tables.Add(tablename);
+            }
+            return tables;
+        }
+...        
+```
+
+
+
+
+
+运行效果如下：
+
+![image-20200315212157020](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200315212157020.png)
+
+通过Dapper来配合使用 Steeltoe.CloudFoundry.ConnectorCore 应该会很方便。
+
+不过也有一个问题，依赖注入是直接注入了SqlConnection，不清楚需要连接多个数据库，如果多数据库不知道这个包能否拓展。
+
+
+
+
+
+
 
 
 
