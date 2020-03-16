@@ -348,6 +348,100 @@ services.AddDistributedRedisCache(Configuration);
 
 
 
+## Using Service Connectors with RabbitMQ
+
+运行rabbitmq
+```
+docker run -d -p 5672:5672 rabbitmq
+```
+Steeltoe Initializr 创建.netcore 3.1 + rabbitmq
+
+```
+#引用包
+Steeltoe.CloudFoundry.ConnectorCore
+RabbitMQ.Client
+
+#依赖注入
+services.AddRabbitMQConnection(Configuration);
+```
+
+添加连接配置
+
+```
+ "rabbitmq": {
+	"client": {
+		"host": "192.168.56.104",
+		"port": "5672",
+		"username": "guest",
+		"password": "guest",
+		
+	}
+ }
+```
+但是我这个例子跑不起来，明明修改了配置改了ip，可是不起作用，抛异常![image-20200316143442704](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200316143442704.png)
+
+
+
+我理解这是steeltoe的bug。我会去提Issue。
+
+
+
+通过设置虚拟机的端口转发到localhost，我继续运行这个例子，可以运行
+
+![image-20200316144615227](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200316144615227.png)
+
+controller的样例代码如下：
+
+```csharp
+public ValuesController(ILogger<ValuesController> logger, [FromServices] ConnectionFactory factory)
+        {
+            _logger = logger;
+            _factory = factory;
+        }
+        
+        // GET api/values
+        [HttpGet]
+        public ActionResult<string> Get()
+        {
+            using (var connection = _factory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                //the queue
+                channel.QueueDeclare(queue: queueName,
+                             durable: false,
+                             exclusive: false,
+                             autoDelete: false,
+                             arguments: null);
+                // consumer
+                var consumer = new EventingBasicConsumer(channel);
+                consumer.Received += (model, ea) =>
+                {
+                    string msg = Encoding.UTF8.GetString(ea.Body);
+                    _logger.LogInformation("Received message: " + msg);
+                };
+                channel.BasicConsume(queue: queueName,
+                                     autoAck: true,
+                                     consumer: consumer);
+                // publisher
+                int i = 0;
+                while (i<5) { //write a message every second, for 5 seconds
+                    var body = Encoding.UTF8.GetBytes($"Message {++i}");
+                    channel.BasicPublish(exchange: "",
+                                         routingKey: queueName,
+                                         basicProperties: null,
+                                         body: body);
+                    Thread.Sleep(1000);
+                }
+            }
+            return "Wrote 5 message to the info log. Have a look!";
+        }
+```
+
+
+
+
+
+
 ## 本文源码地址
 
 <https://github.com/wswind/Steeltoe-Sample>
