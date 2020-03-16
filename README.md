@@ -391,7 +391,7 @@ services.AddRabbitMQConnection(Configuration);
 
 ![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316152030223-1511456478.png)
 
-controller的样例代码如下：
+controller的样例代码如下，自己发送了五条消息并自己接收打印。
 
 ```csharp
 public ValuesController(ILogger<ValuesController> logger, [FromServices] ConnectionFactory factory)
