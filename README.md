@@ -378,17 +378,18 @@ services.AddRabbitMQConnection(Configuration);
 	}
  }
 ```
-但是我这个例子跑不起来，明明修改了配置改了ip，可是不起作用，抛异常![image-20200316143442704](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200316143442704.png)
+
+但是我这个例子跑不起来，明明修改了配置改了ip，可是不起作用，抛异常
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316152239063-311585623.png)
 
 
 
-我理解这是steeltoe的bug。我会去提Issue。
-
+我理解这是steeltoe的bug，已提Issue：<https://github.com/SteeltoeOSS/steeltoe/issues/263>
 
 
 通过设置虚拟机的端口转发到localhost，我继续运行这个例子，可以运行
 
-![image-20200316144615227](C:\Users\ws-de\AppData\Roaming\Typora\typora-user-images\image-20200316144615227.png)
+![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316152030223-1511456478.png)
 
 controller的样例代码如下：
 
