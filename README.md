@@ -376,7 +376,7 @@ services.AddRabbitMQConnection(Configuration);
 ```
  "rabbitmq": {
 	"client": {
-		"host": "192.168.56.104",
+		"server": "192.168.56.104",
 		"port": "5672",
 		"username": "guest",
 		"password": "guest",
@@ -385,15 +385,7 @@ services.AddRabbitMQConnection(Configuration);
  }
 ```
 
-但是我这个例子跑不起来，明明修改了配置改了ip，可是不起作用，抛异常
-![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316152239063-311585623.png)
-
-
-我理解这是steeltoe的bug，已提Issue：<https://github.com/SteeltoeOSS/steeltoe/issues/263>
-
-通过设置虚拟机的端口转发到localhost，我继续运行这个例子，可以运行
-
-![](https://img2020.cnblogs.com/blog/1114902/202003/1114902-20200316152030223-1511456478.png)
+ 注意官方教程中的配置有误，此处为ip配置为server而非host，见Issue：<https://github.com/SteeltoeOSS/steeltoe/issues/263>
 
 controller的样例代码如下，自己发送了五条消息并自己接收打印。
 
@@ -442,4 +434,5 @@ public ValuesController(ILogger<ValuesController> logger, [FromServices] Connect
         }
 ```
 
-遇到这个缺陷后，感觉steeltoe不是很靠谱。本文先暂停更新。
+
+
