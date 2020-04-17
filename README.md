@@ -137,7 +137,7 @@ dotnet add package Steeltoe.Discovery.ClientCore
 }
 ```
 
-修改WeatherForecastController，通过依赖注入IDiscoveryClient，创建DiscoveryHttpClientHandler，然后通过consule注册的服务地址来访问之前创建的服务。
+修改WeatherForecastController，通过依赖注入IDiscoveryClient，创建DiscoveryHttpClientHandler，然后通过consul注册的服务地址来访问之前创建的服务。
 
 ```
         DiscoveryHttpClientHandler _handler;
